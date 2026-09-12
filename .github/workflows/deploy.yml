@@ -18,6 +18,9 @@ jobs:
   terraform:
     name: Terraform
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     defaults:
       run:
         working-directory: terraform
@@ -31,8 +34,6 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          auth-type: SERVICE_PRINCIPAL
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -55,6 +56,9 @@ jobs:
     name: Build & Push
     runs-on: ubuntu-latest
     needs: terraform
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -65,8 +69,6 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          auth-type: SERVICE_PRINCIPAL
 
       - name: Login to ACR
         run: az acr login --name ${{ env.ACR_NAME }}
@@ -92,6 +94,9 @@ jobs:
     name: Deploy to AKS
     runs-on: ubuntu-latest
     needs: build-and-push
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -102,8 +107,6 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          auth-type: SERVICE_PRINCIPAL
 
       - name: Get AKS Credentials
         run: az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AKS_NAME }} --overwrite-existing
