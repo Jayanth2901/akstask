@@ -1,0 +1,32 @@
+# Ingress for Azure Application Gateway Ingress Controller (AGIC).
+# Routes:
+#   /api/*  -> backend-service:8090  (Spring Boot)
+#   /*      -> frontend-service:80   (React/nginx)
+#
+# Application Gateway reads these rules and configures its backend pools.
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: employee-ingress
+  namespace: employee
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api/*
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 8090
+          - path: /*
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80

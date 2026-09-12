@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: employee
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # Replace <ACR_LOGIN_SERVER> with the value from: terraform output acr_login_server
+          image:  employeeaksacr2026xyz.azurecr.io/employee-backend:1.0
+          ports:
+            - containerPort: 8090
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://$(MYSQL_HOST)/$(MYSQL_DATABASE)?useSSL=true&requireSSL=false&serverTimezone=UTC"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "$(MYSQL_USERNAME)"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "$(MYSQL_PASSWORD)"
+          readinessProbe:
+            httpGet:
+              path: /api/v1/employees/employees
+              port: 8090
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/employees/employees
+              port: 8090
+            initialDelaySeconds: 60
+            periodSeconds: 20

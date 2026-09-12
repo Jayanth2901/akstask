@@ -1,0 +1,19 @@
+# Terraform state — contains real infrastructure details, never commit
+*.tfstate
+*.tfstate.*
+
+# Terraform working directory
+.terraform/
+.terraform.lock.hcl
+
+# Variable files with secrets
+terraform.tfvars
+*.tfvars
+
+# Plan files
+tfplan
+*.tfplan
+
+# OS
+.DS_Store
+Thumbs.db
